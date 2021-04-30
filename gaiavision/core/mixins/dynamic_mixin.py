@@ -1,9 +1,8 @@
 """Mixin classes for dynamic modules.
-
-TODO: whether extract `deploy` from `DynamicMixin` to a `DeployMixin`? Any suggestions?
 """
 # standard lib
 from copy import deepcopy
+
 
 class DynamicMixin(object):
     """ Mixin defining all the operations to manipulate architecture of a module.
@@ -12,27 +11,43 @@ class DynamicMixin(object):
     -- Demonstrate the valid search space of a dynamic module
     -- Demonstrate the current arch state of a dynamic module
     -- Inspired by duck-typing, the behaviour of arch manipulation is determined during runtime, validated by the search space.
-    As an trivial example, TODO:
-        ...
     """
-    @property
-    def search_space(self):
-        """Return the pre-defined search space of subclass. Note that `search_space`
-        should be a class method.  """
-        return self.__class__.search_space
+    # def __init__(self, *args, **kwargs):
+    #     self._state = {}
+    #     self._init_state(*args, **kwargs)
+    #     # run the __init__ of the next class in MRO, usually a `nn.Module`
+    #     super().__init__(*args, **kwargs)
 
-    @property
-    def arch_state(self):
-        search_space = [v.split('_', 1)[-1] + '_state' for v in self.__class__.__dict__.keys() if v.startswith('manipulate_')]
-        search_space.remove('arch_state')
-        # should not mutate source arch state
-        states = deepcopy({k:getattr(self, k) for k in search_space})
-        return states
+    # def _init_state(self, **kwargs):
+    #     for k,v in kwargs.items():
+    #         self._check_sanity(key)
+    #         self._states[k] = v
 
-    def validate(self, arch_meta):
-        """ `xxx_state` is reserved keys that should match `manipulate_xxx`
-        """
-        pass
+    # def _check_sanity(self, key):
+    #     valid_space = [v.split('manipulate_', 1)[-1] for v in dir(self) \
+    #                    if v.startswith('manipulate_')]
+    #     assert len(valid_space) > 0
+    #     assert key in valid_space, f"Invalid state({key}) for class({type(self)})"
+
+
+    # @property
+    # def search_space(self):
+    #     """Return the pre-defined search space of subclass. Note that `search_space`
+    #     should be a class method.  """
+    #     return self.__class__.search_space
+
+    # @property
+    # def arch_state(self):
+    #     search_space = [v.split('_', 1)[-1] + '_state' for v in self.__class__.__dict__.keys() if v.startswith('manipulate_')]
+    #     search_space.remove('arch_state')
+    #     # should not mutate source arch state
+    #     states = deepcopy({k:getattr(self, k) for k in search_space})
+    #     return states
+
+    # def validate(self, arch_meta):
+    #     """ `xxx_state` is reserved keys that should match `manipulate_xxx`
+    #     """
+    #     pass
 
     def manipulate_arch(self, arch_meta):
         manipulate_fmt = 'manipulate_{}'
