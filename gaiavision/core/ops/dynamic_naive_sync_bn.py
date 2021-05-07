@@ -10,6 +10,7 @@ import torch.distributed as dist
 from torch.autograd.function import Function
 
 # local lib
+from ..mixins import DynamicMixin
 
 TORCH_VERSION = torch.__version__
 
@@ -28,7 +29,7 @@ class AllReduce(Function):
         return grad_output
 
 
-class DynamicNaiveSyncBatchNorm(nn.BatchNorm2d):
+class DynamicNaiveSyncBatchNorm(nn.BatchNorm2d, DynamicMixin):
     """
     `torch.nn.SyncBatchNorm` has known unknown bugs.
     It produces significantly worse AP (and sometimes goes NaN)
@@ -37,9 +38,33 @@ class DynamicNaiveSyncBatchNorm(nn.BatchNorm2d):
     Use this implementation before `nn.SyncBatchNorm` is fixed.
     It is slower than `nn.SyncBatchNorm`.
     """
+    def deploy_forward(self, input):
+        active_num_features = input.size(1)
+        self.running_mean.data = self.running_mean[:active_num_features]
+        self.running_var.data = self.running_var[:active_num_features]
+        self.weight.data = self.weight[:active_num_features]
+        self.bias.data = self.bias[:active_num_features]
 
-    N = 0
+        if self.momentum is None:
+            exponential_average_factor = 0.0
+        else:
+            exponential_average_factor = self.momentum
+
+        return F.batch_norm(
+            input,
+            self.running_mean,
+            self.running_var,
+            self.weight,
+            self.bias,
+            False,
+            exponential_average_factor,
+            self.eps,
+        )
+
     def forward(self, input):
+        if getattr(self, '_deploying', False):
+            return self.deploy_forward(input)
+
         # prepare dynamic features
         active_num_features = input.size(1)
         running_mean = self.running_mean[:active_num_features]

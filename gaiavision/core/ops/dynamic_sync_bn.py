@@ -13,8 +13,11 @@ import numpy as np
 # mm library
 from mmcv.runner import get_dist_info
 
+# local lib
+from ..mixins import DynamicMixin
 
-class DynamicSyncBatchNorm(SyncBatchNorm):
+
+class DynamicSyncBatchNorm(SyncBatchNorm, DynamicMixin):
     r"""Batch normalization over multiple processes with mutable input channels.
 
     """
@@ -44,7 +47,33 @@ class DynamicSyncBatchNorm(SyncBatchNorm):
             groups = [dist.new_group(ranks) for ranks in rank_list]
             return groups[rank // group_size]
 
+    def deploy_forward(self, input):
+        active_num_features = input.size(1)
+        self.running_mean.data = self.running_mean[:active_num_features]
+        self.running_var.data = self.running_var[:active_num_features]
+        self.weight.data = self.weight[:active_num_features]
+        self.bias.data = self.bias[:active_num_features]
+
+        if self.momentum is None:
+            exponential_average_factor = 0.0
+        else:
+            exponential_average_factor = self.momentum
+
+        return F.batch_norm(
+            input,
+            self.running_mean,
+            self.running_var,
+            self.weight,
+            self.bias,
+            False,
+            exponential_average_factor,
+            self.eps,
+        )
+
     def forward(self, input):
+        if getattr(self, '_deploying', False):
+            return self.deploy_forward(input)
+
         # currently only GPU input is supported
         if not input.is_cuda:
             raise ValueError('DynamicSyncBatchNorm expected \

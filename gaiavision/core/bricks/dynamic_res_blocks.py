@@ -199,7 +199,20 @@ class DynamicBottleneck(nn.Module, DynamicMixin):
                 m.manipulate_width(width*self.expansion)
             else:
                 raise TypeError('The first module in downsample \
-                    module should inherit from DynamicMixin.')
+                    should inherit from DynamicMixin.')
+
+    # def deploy(self, mode: bool = True):
+    #     """ Sets the module in deploying mode.
+
+    #     In deploying mode, the unsed parameters and buffers are abandoned after `deploy_forward`, and
+    #     a clean state_dict is retained.
+    #     """
+    #     DynamicMixin.deploy(self)
+    #     if self.downsample is not None:
+    #         for module in self.downsample.children():
+    #             if isinstance(module, DynamicMixin):
+    #                 module.deploy(mode)
+    #     return self
 
     def forward(self, x):
         """Forward function."""

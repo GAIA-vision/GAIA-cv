@@ -11,8 +11,6 @@ from ..mixins import DynamicMixin
 
 @PLUGIN_LAYERS.register_module()
 class DynamicConvModule(ConvModule, DynamicMixin):
-    search_space = {'width'}
-
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -30,20 +28,20 @@ class DynamicConvModule(ConvModule, DynamicMixin):
                  padding_mode='zeros',
                  order=('conv', 'norm', 'act')):
         super(DynamicConvModule, self).__init__(in_channels,
-                                            out_channels,
-                                            kernel_size,
-                                            stride=stride,
-                                            padding=padding,
-                                            dilation=dilation,
-                                            groups=groups,
-                                            bias=bias,
-                                            conv_cfg=conv_cfg,
-                                            norm_cfg=norm_cfg,
-                                            act_cfg=act_cfg,
-                                            inplace=inplace,
-                                            with_spectral_norm=with_spectral_norm,
-                                            padding_mode=padding_mode,
-                                            order=order)
+                                                out_channels,
+                                                kernel_size,
+                                                stride=stride,
+                                                padding=padding,
+                                                dilation=dilation,
+                                                groups=groups,
+                                                bias=bias,
+                                                conv_cfg=conv_cfg,
+                                                norm_cfg=norm_cfg,
+                                                act_cfg=act_cfg,
+                                                inplace=inplace,
+                                                with_spectral_norm=with_spectral_norm,
+                                                padding_mode=padding_mode,
+                                                order=order)
         # init active out_channels
         self.width_state = out_channels
         # rebuild normalization layers
@@ -62,4 +60,5 @@ class DynamicConvModule(ConvModule, DynamicMixin):
     def manipulate_width(self, width):
         assert issubclass(self.conv, DynamicMixin), '`self.conv` should inherit from DynamicMixin'
         self.conv.manipulate_width(width)
+
 

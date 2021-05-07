@@ -46,13 +46,13 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
                  ):
 
         super(DynamicConv2d, self).__init__(in_channels,
-                                                  out_channels,
-                                                  kernel_size,
-                                                  stride=stride,
-                                                  padding=padding,
-                                                  dilation=dilation,
-                                                  groups=groups,
-                                                  bias=bias)
+                                            out_channels,
+                                            kernel_size,
+                                            stride=stride,
+                                            padding=padding,
+                                            dilation=dilation,
+                                            groups=groups,
+                                            bias=bias)
 
         self.depthwise = depthwise
         self.max_in_channels = in_channels
@@ -65,7 +65,17 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
             f' {width} vs. {self.weight.size(0)}'
         self.width_state = width
 
+    def deploy_forward(self, x):
+        active_in_channels = x.size(1)
+        self.weight.data = self.weight[:self.width_state, :active_in_channels, :, :]
+        if self.bias is not None:
+            self.bias.data = self.bias[:self.width_state]
+        return F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups)
+
     def forward(self, x):
+        if getattr(self, '_deploying', False):
+            return self.deploy_forward(x)
+
         active_in_channels = x.size(1)
         self.groups = active_in_channels if self.depthwise else 1
         weight = self.weight[:self.width_state, :active_in_channels, :, :]

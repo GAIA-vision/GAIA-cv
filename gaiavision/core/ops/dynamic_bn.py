@@ -6,8 +6,10 @@ from torch.autograd.function import Function
 from torch.nn import BatchNorm2d
 import numpy as np
 
+# local lib
+from ..mixins import DynamicMixin
 
-class DynamicBatchNorm(BatchNorm2d):
+class DynamicBatchNorm(BatchNorm2d, DynamicMixin):
     r"""Batch normalization with mutable input channels.
 
     """
@@ -18,7 +20,32 @@ class DynamicBatchNorm(BatchNorm2d):
         # Record the upper bound of num_features
         self.max_num_features = num_features
 
+    def deploy_forward(self, input):
+        active_num_features = input.size(1)
+        self.running_mean.data = self.running_mean[:active_num_features]
+        self.running_var.data = self.running_var[:active_num_features]
+        self.weight.data = self.weight[:active_num_features]
+        self.bias.data = self.bias[:active_num_features]
+
+        if self.momentum is None:
+            exponential_average_factor = 0.0
+        else:
+            exponential_average_factor = self.momentum
+
+        return F.batch_norm(
+            input,
+            self.running_mean,
+            self.running_var,
+            self.weight,
+            self.bias,
+            False,
+            exponential_average_factor,
+            self.eps,
+        )
+
     def forward(self, input):
+        if getattr(self, '_deploying', False):
+            return self.deploy_forward(input)
 
         self._check_input_dim(input)
         active_num_features = input.size(1)
