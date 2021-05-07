@@ -47,6 +47,9 @@ class Sample(BaseRule):
                 return obj
             return obj.sample(num, axis=0)
 
+    def __repr__(self):
+        return f'Sample(self._operation, key={self._key}, value={self._value}, mode={self._mode})'
+
 
 if __name__ == '__main__':
     import numpy as np
@@ -77,7 +80,6 @@ if __name__ == '__main__':
     rule2 = [EvalRule(s) for s in func_strs]
     para2 = Parallel(rule2)
     sample = Sample('top', key='latency', n=1)
-    print('--------------------- stage 1 ------------------------')
     rule = Sequential([para1, para2, sample])
     c = rule(a)
     pprint(c)

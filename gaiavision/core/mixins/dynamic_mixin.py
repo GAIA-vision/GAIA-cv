@@ -3,51 +3,21 @@
 # standard lib
 from copy import deepcopy
 
+# 3rd-parth lib
+import torch.nn as nn
 
-class DynamicMixin(object):
+class DynamicMixin():
     """ Mixin defining all the operations to manipulate architecture of a module.
-
-    The function of this mixin includes:
-    -- Demonstrate the valid search space of a dynamic module
-    -- Demonstrate the current arch state of a dynamic module
-    -- Inspired by duck-typing, the behaviour of arch manipulation is determined during runtime, validated by the search space.
+    Its bussiness includes:
+    -- manipulating the architecture of module
+    -- demonstrating the current arch state of a dynamic module
+    Inspired by duck-typing, the behaviour of arch manipulation is determined during runtime.
     """
-    # def __init__(self, *args, **kwargs):
-    #     self._state = {}
-    #     self._init_state(*args, **kwargs)
-    #     # run the __init__ of the next class in MRO, usually a `nn.Module`
-    #     super().__init__(*args, **kwargs)
+    # def init_state(self):
+    #     raise NotImplementedError
 
-    # def _init_state(self, **kwargs):
-    #     for k,v in kwargs.items():
-    #         self._check_sanity(key)
-    #         self._states[k] = v
-
-    # def _check_sanity(self, key):
-    #     valid_space = [v.split('manipulate_', 1)[-1] for v in dir(self) \
-    #                    if v.startswith('manipulate_')]
-    #     assert len(valid_space) > 0
-    #     assert key in valid_space, f"Invalid state({key}) for class({type(self)})"
-
-
-    # @property
-    # def search_space(self):
-    #     """Return the pre-defined search space of subclass. Note that `search_space`
-    #     should be a class method.  """
-    #     return self.__class__.search_space
-
-    # @property
-    # def arch_state(self):
-    #     search_space = [v.split('_', 1)[-1] + '_state' for v in self.__class__.__dict__.keys() if v.startswith('manipulate_')]
-    #     search_space.remove('arch_state')
-    #     # should not mutate source arch state
-    #     states = deepcopy({k:getattr(self, k) for k in search_space})
-    #     return states
-
-    # def validate(self, arch_meta):
-    #     """ `xxx_state` is reserved keys that should match `manipulate_xxx`
-    #     """
-    #     pass
+    # def state(self):
+    #     raise NotImplementedError
 
     def manipulate_arch(self, arch_meta):
         manipulate_fmt = 'manipulate_{}'
@@ -61,16 +31,21 @@ class DynamicMixin(object):
                 raise Exception(f'`{k}` is not a supported operand of manipulator'
                                 f' for `{self.__class__.__name__}`')
 
-    # def deploy(self, arch_meta=None):
-    #     # TODO: replace the workaround
-    #     manipulable_fields = set([v.split('_', 1)[1] for v in self.__dict__.keys() \
-    #                                 if v.startswith('manipulate_')])
-    #     state_fields = set([v.rsplit('_', 1)[0] for v in self.__dict__.keys() \
-    #                         if v.endswith('_state')])
-    #     deploy_fields = manipulable_fields.intersection(state_fields)
-    #     if arch_meta is not None:
-    #         raise NotImplementedError
-    #     else:
+    def deploy(self, mode: bool = True):
+        """ Sets the module in deploying mode.
 
+        In deploying mode, the unsed parameters and buffers are abandoned after `deploy_forward`, and
+        a clean state_dict is retained.
+        """
+        def _deploy(module, mode):
+            if isinstance(module, DynamicMixin):
+                module._deploying = mode
+                for m in module.children():
+                    _deploy(m, mode)
+            elif isinstance(module, (nn.Sequential, nn.ModuleList, nn.ModuleDict)):
+                for m in module.children():
+                    _deploy(m, mode)
 
+        _deploy(self, mode)
+        return self
 

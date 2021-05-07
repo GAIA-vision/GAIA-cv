@@ -1,5 +1,6 @@
 # standard lib
 from collections.abc import Sequence
+import json
 
 # 3rd party lib
 import pandas as pd
@@ -17,6 +18,10 @@ class Sequential(BaseRule):
         for r in self._rules:
             obj = r(obj)
         return obj
+
+    def __repr__(self):
+        return self.__class__.__name__ + '([\n\t' + \
+            ',\n\t'.join([repr(v) for v in self._rules]) + '\n])'
 
 
 if __name__ == '__main__':
@@ -49,5 +54,6 @@ if __name__ == '__main__':
     print('--------------------- stage 1 ------------------------')
     rule = Sequential([para1, para2])
     c = rule(a)
-    pprint(c)
+    pprint(rule)
+    # pprint(c)
 

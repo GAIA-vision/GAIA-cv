@@ -28,10 +28,14 @@ class EvalRule(BaseRule):
         self._func = eval(func_str)
 
     def _apply(self, obj):
-        return obj[obj.apply(self._func, axis=1)]
+        try:
+            return obj[obj.apply(self._func, axis=1)]
+        except Exception as e:
+            print(f'Error occurs during eval `{self._func_str}`')
+            raise
 
     def __repr__(self):
-        return f'EvalRule(\'{self.func_str}\')'
+        return f'EvalRule(\'{self._func_str}\')'
 
 
 if __name__ == '__main__':

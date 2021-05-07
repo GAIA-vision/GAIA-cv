@@ -3,7 +3,6 @@ import collections
 import bisect
 from itertools import product
 from copy import deepcopy
-import pdb
 
 # 3rd party lib
 import numpy as np
@@ -13,7 +12,6 @@ from mmcv.utils import build_from_cfg
 
 # local lib
 from .base_model_sampler import MODEL_SAMPLERS, BaseModelSampler
-# from ..utils import fold_dict
 
 
 @MODEL_SAMPLERS.register_module('concat')
@@ -63,7 +61,7 @@ class ConcatModelSampler(BaseModelSampler):
         arch_meta = self._model_samplers[ms_idx].sample()
         return arch_meta
 
-    # TODO: think how to post-process the results of `yield from`
+    # TODO: use a decorator to post-process the results of `yield from`
     def traverse(self):
         for ms in self._model_samplers:
             yield from ms.traverse()

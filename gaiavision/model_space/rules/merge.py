@@ -21,7 +21,6 @@ class Merge(BaseRule):
         if isinstance(obj, Sequence):
             out = pd.concat(obj, axis=0)
         elif isinstance(obj, pd.DataFrame):
-            # logger.warning('...')
             out = obj
 
         # remove duplicated model points
@@ -33,5 +32,7 @@ class Merge(BaseRule):
         else:
             return out
 
+    def __repr__(self):
+        return f'Merge(reset_index={self._reset_index})'
 
 

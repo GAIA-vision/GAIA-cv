@@ -2,14 +2,31 @@
 from collections.abc import Sequence
 
 
-# make Sequence hashable, which enables indexing in pandas.DataFrames
 def list2tuple(v):
+    ''' This function is to make Sequence hashable,
+    which enables indexing in pandas.DataFrames.
+    '''
     if isinstance(v, list):
         return tuple(v)
     return v
 
 
+def is_folded(meta):
+    ''' Check whether a dict is folded
+    '''
+    is_folded_flag = True
+    assert isinstance(meta, dict)
+    for k, v in meta.items():
+        if isinstance(v, dict):
+            is_folded_flag = False
+            break
+    return is_folded_flag
+
+
 def unfold_dict(folded_meta):
+    ''' Unfold a dict and turn all lists into tuples.
+    It is safe even if the dict is already unfolded.
+    '''
     unfolded_meta = {}
     for k, v in folded_meta.items():
         if isinstance(v, dict):

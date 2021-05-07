@@ -9,21 +9,21 @@ from mmcv.utils import Registry
 import pandas as pd
 
 
-SAMPLE_RULES = Registry('model sample rules')
+SAMPLE_RULES = Registry('model sampling rules')
 
 
 @SAMPLE_RULES.register_module('base')
 class BaseRule(metaclass=ABCMeta):
-    """
-
+    """ All subclasses should implement the followgin APIs:
+    - _apply: apply rule on pd.DataFrame
     """
     @abstractmethod
     def _apply(self, obj, **kwargs):
         pass
 
-    # @abstractmethod
-    # def __repr__(self):
-    #     pass
+    @abstractmethod
+    def __repr__(self):
+        pass
 
     def __call__(self, obj):
         if isinstance(obj, Sequence):

@@ -1,6 +1,8 @@
 # standard lib
 from collections.abc import Sequence
 import warnings
+import json
+import textwrap
 
 # 3rd party lib
 import pandas as pd
@@ -11,6 +13,10 @@ from .base_rule import BaseRule, SAMPLE_RULES
 
 @SAMPLE_RULES.register_module('parallel')
 class Parallel(BaseRule):
+    ''' Apply sub-rules on input.
+    When input is a dataframe, it applies each sub-rules on the dataframe.
+    When input is a sequence, it applies each sub-rules on each element of input.
+    '''
     def __init__(self, rules):
         if not isinstance(rules, Sequence):
             raise TypeError(f'`rules` should be Sequence, but got `{type(rules)}`')
@@ -21,9 +27,16 @@ class Parallel(BaseRule):
     def _apply(self, obj):
         return [r(obj) for r in self._rules]
 
+    def __repr__(self):
+        return self.__class__.__name__ + '([\n\t' + \
+            ',\n\t'.join([repr(v) for v in self._rules]) + '\n])'
+
 
 @SAMPLE_RULES.register_module('sliced_parallel')
 class SlicedParallel(BaseRule):
+    ''' Apply sub-rules on element of corresponding index in input.
+    The number of rules shoule be equal to number of elements of input.
+    '''
     def __init__(self, rules):
         if not isinstance(rules, Sequence):
             raise TypeError(f'`rules` should be Sequence, but got `{type(rules)}`')
@@ -51,4 +64,7 @@ class SlicedParallel(BaseRule):
             raise TypeError('`obj` should be Sequence, but got `{type(obj)}`')
         return result
 
+    def __repr__(self):
+        return self.__class__.__name__ + '([\n\t' + \
+            ',\n\t'.join([repr(v) for v in self._rules]) + '\n])'
 

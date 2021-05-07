@@ -2,7 +2,6 @@
 import random
 import itertools
 from collections.abc import Sequence
-import pdb
 
 # 3rd-parth lib
 import numpy as np
