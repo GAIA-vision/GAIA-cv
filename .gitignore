@@ -28,3 +28,6 @@ apps/**
 hubs/**
 .dist_test
 
+build
+dist
+*egg-info
