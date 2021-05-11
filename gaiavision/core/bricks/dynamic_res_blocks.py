@@ -5,7 +5,6 @@ import torch.utils.checkpoint as cp
 from torch.nn.modules.batchnorm import _BatchNorm
 
 # mm library
-from mmdet.utils import get_root_logger
 from mmcv.cnn import (build_plugin_layer, build_conv_layer,
                       build_activation_layer,
                       constant_init, kaiming_init)
