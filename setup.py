@@ -39,7 +39,11 @@ if __name__ == '__main__':
         license='Apache License 2.0',
         keywords='computer vision, object detection, transfer learning, AutoML',
         packages=find_packages(exclude=('configs', 'tools', 'apps', 'scripts')),
-        install_requires=['torch >= 1.5.1', 'torchvision', 'mmcv==1.2.7'],
+        install_requires=[
+            'torch >= 1.5.1',
+            'torchvision',
+            'pandas >= 1.1.5',
+            'mmcv==1.2.7'],
         python_requires='>=3.6',
         zip_save=False,
     )
