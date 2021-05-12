@@ -19,7 +19,7 @@ if __name__ == '__main__':
         description='An AutoML transfer learning toolbox',
         long_description=long_description,
         long_description_content_type='text/markdown',
-        author='Junran Peng',
+        author='Junran Peng & Sefira',
         author_email='jrpeng4ever@126.com',
         classifiers=[
         # How mature is this project? Common values are
