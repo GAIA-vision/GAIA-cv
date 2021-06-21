@@ -28,7 +28,7 @@ Requirements
 Installation
 ------------
 
-- Install the full version of ``mmcv``. Please refer to here_.
+- Install the full version of ``mmcv``. Please refer to this_.
 - Install ``gaiavision`` in three lines:
 
 .. code-block:: bash
@@ -38,13 +38,13 @@ Installation
   pip install -e .
 
 
-.. _here: https://github.com/open-mmlab/mmcv#installation
+.. _this: https://github.com/open-mmlab/mmcv#installation
 
 Usage
 -----
 .. code-block:: python
 
-  import gaiavision
+  import gaiavision # load 
   
 
 
