@@ -4,7 +4,7 @@ GAIA-cv
 
 Introduction 
 ------------
-GAIA-cv is a fundamental library for customized computer vision application and supports many projects as follows:
+GAIA-cv is a fundamental vision library for customized AI solutions, and supports many projects as follows:
 
 - GAIA-cls: Coming soon!
 - GAIA-det_: GAIA detection toolbox that provides automatic AI solutions for object detection.
@@ -19,6 +19,11 @@ It provides functionalities that help the customization of AI solutions.
 - Manage models in search space according to your rules.
 - Integrate datasets of various sources.
 
+Requirements
+------------
+Python 3.6+
+CUDA 10.0+
+mmcv 1.2.7(stable)
 
 Installation
 ------------
