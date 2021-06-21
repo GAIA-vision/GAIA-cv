@@ -28,8 +28,8 @@ Requirements
 Installation
 ------------
 
-- Install the full version of mmcv, please refer to here_.
-- Install gaiavision in two lines:
+- Install the full version of mmcv. Please refer to here_.
+- Install gaiavision in three lines:
 
 .. code-block:: bash
 
