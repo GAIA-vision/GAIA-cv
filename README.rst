@@ -44,7 +44,7 @@ Usage
 -----
 .. code-block:: python
 
-  import gaiavision # load 
+  import gaiavision # load registered modules
   
 
 
