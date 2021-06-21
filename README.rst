@@ -23,13 +23,13 @@ Requirements
 ------------
 - Python 3.6+
 - CUDA 10.0+
-- Others(see requirements.txt)
+- Others (see requirements.txt)
 
 Installation
 ------------
 
-- Install the full version of mmcv. Please refer to here_.
-- Install gaiavision in three lines:
+- Install the full version of ``mmcv``. Please refer to here_.
+- Install ``gaiavision`` in three lines:
 
 .. code-block:: bash
 
@@ -39,6 +39,13 @@ Installation
 
 
 .. _here: https://github.com/open-mmlab/mmcv#installation
+
+Usage
+-----
+.. code-block:: python
+
+  import gaiavision
+  
 
 
 Acknowledgements
