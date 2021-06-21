@@ -25,9 +25,10 @@ Installation
 
 - Install the full version of mmcv, please refer to here_.
 - Install gaiavision in two lines:
-  .. code-block:: shell
+  .. code-block:: bash
   
   git clone https://github.com/GAIA-vision/GAIA-cv . && cd GAIA-cv
+  pip install -r requirements.txt
   pip install -e .
 
 
