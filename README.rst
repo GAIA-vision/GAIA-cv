@@ -57,5 +57,5 @@ Acknowledgements
 Contributors:
 -------------
 
-We encourage every practitioners in the community to contribute to GAIA-vision. The coutributions including but not limited to implementing new search spaces, new architectures, customized solutions on public datasets and etc. are welcomed. For now, the contributors include Junran Peng, Xingyuan Bu, Qing chang, Haoran Meng.
+We encourage every practitioner in the community to contribute to GAIA-vision. The coutributions including but not limited to implementing new search spaces, new architectures, customized solutions on public datasets and etc. are welcomed. For now, the contributors include Junran Peng, Xingyuan Bu, Qing chang, Haoran Meng.
 
