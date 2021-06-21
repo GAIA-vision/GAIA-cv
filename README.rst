@@ -21,9 +21,9 @@ It provides functionalities that help the customization of AI solutions.
 
 Requirements
 ------------
-Python 3.6+
-CUDA 10.0+
-mmcv 1.2.7(stable)
+- Python 3.6+
+- CUDA 10.0+
+- Others(see requirements.txt)
 
 Installation
 ------------
