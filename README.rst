@@ -39,8 +39,8 @@ Installation
 Acknowledgements
 ---------------
 
-- This repo is constructed on top of the awesome mmcv_.
-- Some of the core ideas are inspired by an amazing work BigNas_.
+- This repo is constructed on top of the awesome toolbox mmcv_.
+- Some of the ideas are inspired by an amazing work named BigNAS_.
 
 
 
