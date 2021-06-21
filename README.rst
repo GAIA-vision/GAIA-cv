@@ -27,6 +27,7 @@ Installation
 - Install gaiavision in two lines:
 
 .. code-block:: bash
+
   git clone https://github.com/GAIA-vision/GAIA-cv . && cd GAIA-cv
   pip install -r requirements.txt
   pip install -e .
@@ -51,5 +52,5 @@ Acknowledgements
 Contributors:
 -------------
 
-We encourage every practitioners in the community to contribute to GAIA-vision. The coutributions including but not limited to implementing new search spaces, new architectures, customized solutions on public datasets and etc. are welcomed. Please refer to CONTRIBUTION.md. For now, the contributors include Junran Peng, Xingyuan Bu, Qing chang, Haoran Meng.
+We encourage every practitioners in the community to contribute to GAIA-vision. The coutributions including but not limited to implementing new search spaces, new architectures, customized solutions on public datasets and etc. are welcomed. For now, the contributors include Junran Peng, Xingyuan Bu, Qing chang, Haoran Meng.
 
