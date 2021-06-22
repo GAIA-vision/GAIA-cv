@@ -6,7 +6,6 @@ Introduction
 ------------
 GAIA-cv is a fundamental vision library for customized AI solutions, and supports many projects as follows:
 
-- GAIA-cls: Coming soon!
 - GAIA-det_: GAIA detection toolbox that provides automatic AI solutions for object detection.
 - GAIA-seg: Coming soon!
 - GAIA-ssl: Coming soon!
