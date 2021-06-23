@@ -34,7 +34,7 @@ import torch.nn as nn
 import mmcv
 
 # local lib
-from ..core.ops import DynamicConv2d, DynamicSyncBatchNorm
+from ..core.ops import DynamicConv2d, DynamicSyncBatchNorm, DynamicLinear
 
 
 def get_model_complexity_info(model,
@@ -51,7 +51,8 @@ def get_model_complexity_info(model,
     each layer in a model.
 
     Supported layers are listed as below:
-        - Convolutions: ``nn.Conv1d``, ``nn.Conv2d``, ``nn.Conv3d``.
+        - Convolutions: ``nn.Conv1d``, ``nn.Conv2d``, ``nn.Conv3d``,
+            ``DynamicConv2d``.
         - Activations: ``nn.ReLU``, ``nn.PReLU``, ``nn.ELU``, ``nn.LeakyReLU``,
             ``nn.ReLU6``.
         - Poolings: ``nn.MaxPool1d``, ``nn.MaxPool2d``, ``nn.MaxPool3d``,
@@ -60,8 +61,8 @@ def get_model_complexity_info(model,
             ``nn.AdaptiveMaxPool3d``, ``nn.AdaptiveAvgPool1d``,
             ``nn.AdaptiveAvgPool2d``, ``nn.AdaptiveAvgPool3d``.
         - BatchNorms: ``nn.BatchNorm1d``, ``nn.BatchNorm2d``,
-            ``nn.BatchNorm3d``.
-        - Linear: ``nn.Linear``.
+            ``nn.BatchNorm3d``, ``DynamicBatchNorm``.
+        - Linear: ``nn.Linear``, ``DynamicLinear``.
         - Deconvolution: ``nn.ConvTranspose2d``.
         - Upsample: ``nn.Upsample``.
 
@@ -589,6 +590,8 @@ def get_modules_mapping():
         mmcv.cnn.bricks.Conv3d: conv_flops_counter_hook,
         # dynamic ops
         DynamicConv2d: dyn_conv_flops_counter_hook,
+        DynamicBatchNorm: bn_flops_counter_hook,
+        DynamicLinear: linear_flops_counter_hook,
         # activations
         nn.ReLU: relu_flops_counter_hook,
         nn.PReLU: relu_flops_counter_hook,
