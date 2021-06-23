@@ -26,6 +26,7 @@
 import sys
 from functools import partial
 
+# 3rd party lib
 import numpy as np
 import torch
 import torch.nn as nn
@@ -61,7 +62,7 @@ def get_model_complexity_info(model,
             ``nn.AdaptiveMaxPool3d``, ``nn.AdaptiveAvgPool1d``,
             ``nn.AdaptiveAvgPool2d``, ``nn.AdaptiveAvgPool3d``.
         - BatchNorms: ``nn.BatchNorm1d``, ``nn.BatchNorm2d``,
-            ``nn.BatchNorm3d``, ``DynamicBatchNorm``.
+            ``nn.BatchNorm3d``, ``DynamicSyncBatchNorm``.
         - Linear: ``nn.Linear``, ``DynamicLinear``.
         - Deconvolution: ``nn.ConvTranspose2d``.
         - Upsample: ``nn.Upsample``.
@@ -349,10 +350,13 @@ def compute_average_flops_cost(self):
     """
     batches_count = self.__batch_counter__
     flops_sum = 0
+    params_sum = 0
     for module in self.modules():
         if is_supported_instance(module):
             flops_sum += module.__flops__
-    params_sum = get_model_parameters_number(self)
+    for module in self.modules():
+        if is_supported_instance(module):
+            params_sum += module.__params__
     return flops_sum / batches_count, params_sum
 
 
@@ -421,9 +425,15 @@ def relu_flops_counter_hook(module, input, output):
 
 def linear_flops_counter_hook(module, input, output):
     input = input[0]
+    input_last_dim = input.shape[-1]
     output_last_dim = output.shape[
         -1]  # pytorch checks dimensions, so here we don't care much
     module.__flops__ += int(np.prod(input.shape) * output_last_dim)
+    # compute runtime number of params
+    module.__params__ = 0
+    module.__params__ += input_last_dim * output_last_dim
+    if module.bias is not None:
+        module.__params__ += output_last_dim
 
 
 def pool_flops_counter_hook(module, input, output):
@@ -438,6 +448,11 @@ def bn_flops_counter_hook(module, input, output):
     if module.affine:
         batch_flops *= 2
     module.__flops__ += int(batch_flops)
+    # compute runtime number of params
+    if module.affine:
+        output_last_dim = output.shape[-1]
+        module.__params__ = 0
+        module.__params__ += output_last_dim * 2 # weight + bias
 
 
 def deconv_flops_counter_hook(conv_module, input, output):
@@ -448,8 +463,8 @@ def deconv_flops_counter_hook(conv_module, input, output):
     input_height, input_width = input.shape[2:]
 
     kernel_height, kernel_width = conv_module.kernel_size
-    in_channels = conv_module.in_channels
-    out_channels = conv_module.out_channels
+    in_channels = input.shape[1]
+    out_channels = output.shape[1]
     groups = conv_module.groups
 
     filters_per_channel = out_channels // groups
@@ -466,39 +481,17 @@ def deconv_flops_counter_hook(conv_module, input, output):
 
     conv_module.__flops__ += int(overall_flops)
 
+    # compute runtime number of params
+    conv_module.__params__ = 0
+    # weight
+    weight = conv_module.weight[:in_channels, :out_channels] # transpose version of conv
+    conv_module.__params__ += weight.numel()
+    if conv_module.bias is not None:
+        bias = conv_module.bias[:out_channels]
+        conv_module.__params__ += bias.numel()
+
 
 def conv_flops_counter_hook(conv_module, input, output):
-    # Can have multiple inputs, getting the first one
-    input = input[0]
-
-    batch_size = input.shape[0]
-    output_dims = list(output.shape[2:])
-
-    kernel_dims = list(conv_module.kernel_size)
-    in_channels = conv_module.in_channels
-    out_channels = conv_module.out_channels
-    groups = conv_module.groups
-
-    filters_per_channel = out_channels // groups
-    conv_per_position_flops = int(
-        np.prod(kernel_dims)) * in_channels * filters_per_channel
-
-    active_elements_count = batch_size * int(np.prod(output_dims))
-
-    overall_conv_flops = conv_per_position_flops * active_elements_count
-
-    bias_flops = 0
-
-    if conv_module.bias is not None:
-
-        bias_flops = out_channels * active_elements_count
-
-    overall_flops = overall_conv_flops + bias_flops
-
-    conv_module.__flops__ += int(overall_flops)
-
-
-def dyn_conv_flops_counter_hook(conv_module, input, output):
     # Can have multiple inputs, getting the first one
     input = input[0]
 
@@ -527,6 +520,14 @@ def dyn_conv_flops_counter_hook(conv_module, input, output):
     overall_flops = overall_conv_flops + bias_flops
 
     conv_module.__flops__ += int(overall_flops)
+    # compute runtime number of params
+    conv_module.__params__ = 0
+    # weight
+    weight = conv_module.weight[:out_channels, :in_channels]
+    conv_module.__params__ += weight.numel()
+    if conv_module.bias is not None:
+        bias = conv_module.bias[:out_channels]
+        conv_module.__params__ += bias.numel()
 
 
 def batch_counter_hook(module, input, output):
@@ -564,7 +565,8 @@ def remove_batch_counter_hook_function(module):
 def add_flops_counter_variable_or_reset(module):
     if is_supported_instance(module):
         module.__flops__ = 0
-        module.__params__ = get_model_parameters_number(module)
+        module.__params__ = 0
+        # module.__params__ = get_model_parameters_number(module)
 
 
 def is_supported_instance(module):
@@ -589,8 +591,8 @@ def get_modules_mapping():
         nn.Conv3d: conv_flops_counter_hook,
         mmcv.cnn.bricks.Conv3d: conv_flops_counter_hook,
         # dynamic ops
-        DynamicConv2d: dyn_conv_flops_counter_hook,
-        DynamicBatchNorm: bn_flops_counter_hook,
+        DynamicConv2d: conv_flops_counter_hook,
+        DynamicSyncBatchNorm: bn_flops_counter_hook,
         DynamicLinear: linear_flops_counter_hook,
         # activations
         nn.ReLU: relu_flops_counter_hook,
