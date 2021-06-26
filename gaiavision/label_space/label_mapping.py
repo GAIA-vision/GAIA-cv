@@ -19,9 +19,9 @@ class LabelMapping(object):
     '''
     def __init__(self, name, meta):
         self._dataset_name = name
-        self._sep2name= meta['sep2name']
-        self._name2sep= meta['name2sep']
-        self._sep2uni= meta.get('sep2uni', None)
+        self._sep2name = meta['sep2name']
+        self._name2sep = meta['name2sep']
+        self._sep2uni = meta.get('sep2uni', None)
         # sorted
         labels = list(self._sep2name.keys())
         self._labels = sorted(labels, key=lambda x:int(x))
@@ -99,11 +99,12 @@ class LabelMapping(object):
     @staticmethod
     def read_csv(filename, dataset_name=None):
         """Load dataset label mapping from csv.
-        Text format:
+        filaname: dataset_name.csv
+        Text format: (csv head is required, uni column is optional)
             label, name, uni(optional)
             0, aaa, 27
             1, bbb, 44
-        Or:
+        Or: (csv head is required, uni column is optional)
             name, uni(optional)
             aaa, 27
             bbb, 44

@@ -20,7 +20,7 @@ class LabelPool(object):
     to each separate datasets.
     Args:
         uni2name(dict): mapping of unified label to name
-        name2uni(dict): mappint of name to unified label
+        name2uni(dict): mapping of name to unified label
         datasets(dict): info of each datasets
     '''
     def __init__(self, uni2name, name2uni, datasets=None):
@@ -28,8 +28,8 @@ class LabelPool(object):
         if datasets is not None:
             for ds_name, ds_info in datasets.items():
                 self._datasets[ds_name] = LabelMapping(ds_name, ds_info)
-        self._uni2name= uni2name
-        self._name2uni= name2uni
+        self._uni2name = uni2name
+        self._name2uni = name2uni
         self._num_cats = len(uni2name)
         labels = list(self._uni2name.keys())
         self._labels = sorted(labels, key=lambda x:int(x))
@@ -138,7 +138,7 @@ class LabelPool(object):
     def read_csv(filename):
         """Load dataset label pool from csv.
         Text format:
-            label(optional), name, d1.label(optional), d1.name(optional), d2.label(optional), d2.name(optional)
+            label, name, d1.label(optional), d1.name(optional), d2.label(optional), d2.name(optional)
             0, aaa, 13, aaa1, 23, aaa2
             1, bbb, 24, bbb1, 27, bbb2
             ...
@@ -154,7 +154,7 @@ class LabelPool(object):
             for l in fin:
                 if header is None:
                     header = l.strip()
-                    header_sp= header.split(',')
+                    header_sp = header.split(',')
                     uni_name_idx = header_sp.index('name')
                     uni_label_idx = header_sp.index('label')
                     dataset_tags = LabelPool._parse_csv_header(header)
