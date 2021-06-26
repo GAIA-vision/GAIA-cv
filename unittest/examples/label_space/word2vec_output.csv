@@ -1,0 +1,4 @@
+label,name,top1##label##name##score,top2##label##name##score,top3##label##name##score,top4##label##name##score,top5##label##name##score
+1,car,95##car##1.00,644##vehicle##0.78,602##truck##0.67,473##scooter##0.64,347##motorcycle##0.63
+2,pedestrian,47##bicyclist##0.62,348##motorcyclist##0.51,44##bicycle##0.44,473##scooter##0.33,159##deer##0.33
+3,cyclist,449##rider##0.69,47##bicyclist##0.69,348##motorcyclist##0.63,44##bicycle##0.52,347##motorcycle##0.44
