@@ -71,6 +71,7 @@ class LabelPool(object):
     def add_label_mapping(self, label_mapping):
         ds_name = label_mapping.dataset_name
         self._datasets[ds_name] = label_mapping
+        return self
 
     def todict(self):
         datasets = {k:v.todict()['meta'] for k,v in self._datasets.items()}
