@@ -1,4 +1,5 @@
 # standard lib
+import copy
 import random
 import itertools
 from collections.abc import Sequence
@@ -20,8 +21,12 @@ class RangeModelSampler(BaseModelSampler):
         ascending (bool): the latter elements should always be larger if True
 
     """
-    def __init__(self, key, start, end, step, ascending=False, mode='sample'):
+    def __init__(self, key, start, end, step, ascending=False, depth_uniform=False, mode='sample'):
         super(RangeModelSampler, self).__init__(mode)
+        
+        if 'depth' not in key:
+            assert depth_uniform is False, "depth_uniform can't be used here"
+            
         one_dim = True
         # infer ndim
         if isinstance(start, Sequence):
@@ -37,6 +42,16 @@ class RangeModelSampler(BaseModelSampler):
         self.end = end
         self.step = step
         self.ascending = ascending
+        self.depth_uniform = depth_uniform
+        if self.depth_uniform:  
+            min_depth = np.sum(start)
+            max_depth = np.sum(end)
+            bin_num = (max_depth - min_depth) + 1
+            depth_cands = [[] for _ in range(bin_num)]
+            temp_cands = []
+            temp_len = len(start)
+            self.search(0,start,end,step,temp_cands,depth_cands,min_depth)
+            self.depth_cands = depth_cands
         if self.ndim == 2:
             if self.ascending:
                 n = 0
@@ -70,6 +85,11 @@ class RangeModelSampler(BaseModelSampler):
         return self._traverse_length
 
     def sample(self):
+        if self.depth_uniform:
+            return {self.key: random.choice(random.choice(self.depth_cands))}
+        if self.ndim == 1:
+            cands = list(range(self.start, self.end+1, self.step))
+            return {self.key: random.choice(cands)}
         if self.ndim == 1:
             cands = list(range(self.start, self.end+1, self.step))
             return {self.key: random.choice(cands)}
@@ -112,7 +132,19 @@ class RangeModelSampler(BaseModelSampler):
             else:
                 for values in candidates:
                     yield {self.key: values}
-
+                    
+    def search(self, now, start, end, step, temp_cands, depth_cands, min_depth):
+        for each in range(start[now],end[now]+1,step[now]):
+            temp_cands.append(each)
+            if now == len(start)-1:
+                #print(temp_cands)
+                temp_length = np.sum(temp_cands)
+                depth_cands[temp_length-min_depth].append(copy.deepcopy(temp_cands))
+                temp_cands.pop()
+                continue
+            self.search(now+1,start,end,step,temp_cands,depth_cands,min_depth)
+            temp_cands.pop()
+            
     def __repr__(self):
         format_string = self.__class__.__name__ + '('
         format_string += f'key={self.key}, '
@@ -122,7 +154,6 @@ class RangeModelSampler(BaseModelSampler):
         format_string += f'mode={self._mode}, '
         format_string += ')'
         return format_string
-
 
 @MODEL_SAMPLERS.register_module('candidate')
 class CandidateModelSampler(BaseModelSampler):
