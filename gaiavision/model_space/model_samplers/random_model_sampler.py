@@ -49,7 +49,6 @@ class RangeModelSampler(BaseModelSampler):
             bin_num = (max_depth - min_depth) + 1
             depth_cands = [[] for _ in range(bin_num)]
             temp_cands = []
-            temp_len = len(start)
             self.search(0,start,end,step,temp_cands,depth_cands,min_depth)
             self.depth_cands = depth_cands
         if self.ndim == 2:
@@ -152,6 +151,7 @@ class RangeModelSampler(BaseModelSampler):
         format_string += ')'
         return format_string
 
+    
 @MODEL_SAMPLERS.register_module('candidate')
 class CandidateModelSampler(BaseModelSampler):
     """ Range model sampler.
