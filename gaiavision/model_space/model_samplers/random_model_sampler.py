@@ -90,9 +90,6 @@ class RangeModelSampler(BaseModelSampler):
         if self.ndim == 1:
             cands = list(range(self.start, self.end+1, self.step))
             return {self.key: random.choice(cands)}
-        if self.ndim == 1:
-            cands = list(range(self.start, self.end+1, self.step))
-            return {self.key: random.choice(cands)}
 
         pivot = 0
         values = []
