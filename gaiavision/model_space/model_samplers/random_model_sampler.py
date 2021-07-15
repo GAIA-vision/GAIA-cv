@@ -43,14 +43,8 @@ class RangeModelSampler(BaseModelSampler):
         self.step = step
         self.ascending = ascending
         self.depth_uniform = depth_uniform
-        if self.depth_uniform:  
-            min_depth = np.sum(start)
-            max_depth = np.sum(end)
-            bin_num = (max_depth - min_depth) + 1
-            depth_cands = [[] for _ in range(bin_num)]
-            temp_cands = []
-            self.search(0,start,end,step,temp_cands,depth_cands,min_depth)
-            self.depth_cands = depth_cands
+        if self.depth_uniform:
+            self.depth_cands = self.enumeration()
         if self.ndim == 2:
             if self.ascending:
                 n = 0
@@ -129,18 +123,22 @@ class RangeModelSampler(BaseModelSampler):
                 for values in candidates:
                     yield {self.key: values}
                     
-    def search(self, now, start, end, step, temp_cands, depth_cands, min_depth):
-        for each in range(start[now],end[now]+1,step[now]):
-            temp_cands.append(each)
-            if now == len(start)-1:
-                #print(temp_cands)
-                temp_length = np.sum(temp_cands)
-                depth_cands[temp_length-min_depth].append(copy.deepcopy(temp_cands))
-                temp_cands.pop()
-                continue
-            self.search(now+1,start,end,step,temp_cands,depth_cands,min_depth)
-            temp_cands.pop()
-            
+    def enumeration(self):
+        min_depth = np.sum(self.start)
+        max_depth = np.sum(self.end)
+        bin_num = (max_depth - min_depth) + 1
+        depth_cands = [[] for _ in range(bin_num)]
+        candidates = []
+        
+        for start, end, step in zip(self.start, self.end, self.step):
+            candidates.append(list(range(start, end+1, step)))
+        candidates = itertools.product(*candidates)
+        
+        for each_candidate in candidates:
+            temp_length = np.sum(each_candidate)
+            depth_cands[temp_length-min_depth].append(each_candidate)
+        return depth_cands
+
     def __repr__(self):
         format_string = self.__class__.__name__ + '('
         format_string += f'key={self.key}, '
@@ -219,5 +217,3 @@ class CandidateModelSampler(BaseModelSampler):
         format_string += f'mode={self._mode}, '
         format_string += ')'
         return format_string
-
-
