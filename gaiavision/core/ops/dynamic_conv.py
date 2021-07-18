@@ -36,7 +36,7 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
                  out_channels,
                  kernel_size=3,
                  stride=1,
-                 padding=1,
+                 padding=0,
                  dilation=1,
                  groups=1,
                  depthwise=False,
