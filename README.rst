@@ -27,7 +27,7 @@ Requirements
 Installation
 ------------
 
-- Install the full version of ``mmcv``. Please refer to this_.
+- Install the full version of ``mmcv>=1.2.7``. Please refer to this_.
 - Install ``gaiavision`` in three lines:
 
 .. code-block:: bash
