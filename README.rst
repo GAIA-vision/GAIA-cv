@@ -22,12 +22,13 @@ Requirements
 ------------
 - Python 3.6+
 - CUDA 10.0+
+- mmcv < 1.3.0 and mmcv >= 1.2.7 
 - Others (See requirements.txt)
 
 Installation
 ------------
 
-- Install the full version of ``mmcv>=1.2.7``. Please refer to this_.
+- Install the full version of ``mmcv``. Please refer to this_.
 - Install ``gaiavision`` in three lines:
 
 .. code-block:: bash
