@@ -6,7 +6,7 @@ from os import path as osp
 
 
 here = osp.abspath(osp.dirname(__file__))
-with open(osp.join(here, 'README.md'), encoding='utf-8') as f:
+with open(osp.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 exec(open('gaiavision/version.py').read())
