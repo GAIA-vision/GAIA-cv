@@ -22,7 +22,7 @@ Requirements
 ------------
 - Python 3.6+
 - CUDA 10.0+
-- 1.2.7 <= mmcv < 1.3.0 
+- mmcv >= 1.2.7 & mmcv < 1.3.0 
 - Others (See requirements.txt)
 
 Installation
