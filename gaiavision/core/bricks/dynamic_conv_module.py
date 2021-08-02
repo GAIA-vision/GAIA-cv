@@ -58,7 +58,7 @@ class DynamicConvModule(ConvModule, DynamicMixin):
         self.init_weights()
 
     def manipulate_width(self, width):
-        assert issubclass(self.conv, DynamicMixin), '`self.conv` should inherit from DynamicMixin'
+        # assert issubclass(self.conv, DynamicMixin), '`self.conv` should inherit from DynamicMixin' 
         self.conv.manipulate_width(width)
 
 
