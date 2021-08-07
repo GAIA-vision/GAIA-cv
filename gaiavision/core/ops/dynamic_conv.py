@@ -65,9 +65,10 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
     def deploy_forward(self, x):
         active_in_channels = x.size(1)
         self.weight.data = self.weight[:self.width_state, :active_in_channels, :, :]
+        groups = active_in_channels if self.groups > 1 else 1
         if self.bias is not None:
             self.bias.data = self.bias[:self.width_state]
-        return F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups)
+        return F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, groups)
 
     def forward(self, x):
         if getattr(self, '_deploying', False):
