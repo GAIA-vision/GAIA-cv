@@ -39,7 +39,6 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
                  padding=1,
                  dilation=1,
                  groups=1,
-                 depthwise=False,
                  bias=True,
                  ):
 
@@ -52,7 +51,7 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
                                             groups=groups,
                                             bias=bias)
 
-        self.depthwise = depthwise
+        self.groups = groups
         self.max_in_channels = in_channels
         self.max_out_channels = out_channels
         self.width_state = out_channels
@@ -75,7 +74,7 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
             return self.deploy_forward(x)
 
         active_in_channels = x.size(1)
-        self.groups = active_in_channels if self.depthwise else 1
+        groups = active_in_channels if self.groups > 1 else 1
         weight = self.weight[:self.width_state, :active_in_channels, :, :]
         if self.bias is not None:
             bias = self.bias[:self.width_state]
@@ -85,7 +84,7 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
         if x.dtype == torch.float32 and weight.dtype == torch.float16:
             x = x.half()
 
-        y = F.conv2d(x, weight, bias, self.stride, self.padding, self.dilation, self.groups)
+        y = F.conv2d(x, weight, bias, self.stride, self.padding, self.dilation, groups)
         return y
 
     # TODO: replace the vanilla conv repr, instead of extra_repr
