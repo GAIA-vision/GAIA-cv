@@ -41,7 +41,9 @@ class DynamicConv2d(nn.Conv2d, DynamicMixin):
                  groups=1,
                  bias=True,
                  ):
-
+        '''
+        depthwise conv and regular conv work normally. Group conv not support yet.
+        '''
         super(DynamicConv2d, self).__init__(in_channels,
                                             out_channels,
                                             kernel_size,
