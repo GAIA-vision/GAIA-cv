@@ -42,8 +42,7 @@ if __name__ == '__main__':
         install_requires=[
             'torch >= 1.5.1',
             'torchvision',
-            'pandas >= 1.1.5',
-            'mmcv==1.2.7'],
+            'pandas >= 1.1.5'],
         python_requires='>=3.6',
         zip_save=False,
     )
