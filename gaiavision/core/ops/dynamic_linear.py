@@ -33,11 +33,11 @@ class DynamicLinear(nn.Linear, DynamicMixin):
         super().__init__(in_channels, out_channels, bias)
         self.cout_state = out_channels
 
-    def manipulate_cout(self, cout: dict) -> None:
-        self.cout_state = out_channels
+    def manipulate_cout(self, cout: int) -> None:
+        self.cout_state = cout
 
     def deploy_forward(self, x: Tensor) -> Tensor:
-        cin = x.size(1)
+        cin = x.size(-1)
         self.weight.data = self.weight[:self.cout_state, :cin]
         self.bias.data = self.bias[:self.cout_state]
         return F.linear(x, self.weight, self.bias)
@@ -46,7 +46,7 @@ class DynamicLinear(nn.Linear, DynamicMixin):
         if getattr(self, '_deploying', False):
             return self.deploy_forward(input)
 
-        cin = input.size(1)
+        cin = input.size(-1)
         weight = self.weight[:self.cout_state, :cin]
         bias = self.bias[:self.cout_state]
         return F.linear(input, weight, bias)
