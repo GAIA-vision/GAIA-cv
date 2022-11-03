@@ -17,7 +17,110 @@ from ..mixins import DynamicMixin
 
 
 class DynamicBasicBlock(nn.Module, DynamicMixin):
-    pass
+    expansion = 1
+    search_space = {"width"}
+
+    def __init__(
+        self,
+        inplanes,
+        planes,  # inner_planes
+        stride=1,
+        dilation=1,
+        downsample=None,
+        style="pytorch",
+        with_cp=False,
+        conv_cfg=None,
+        norm_cfg=dict(type="BN"),
+        act_cfg=dict(type="ReLU"),
+        dcn=None,
+        plugins=None,
+    ):
+        super(DynamicBasicBlock, self).__init__()
+        assert dcn is None, "Not implemented yet."
+        assert plugins is None, "Not implemented yet."
+
+        assert conv_cfg is not None and conv_cfg["type"] == "DynConv2d"
+        self.width_state = planes
+
+        self.norm1_name, norm1 = build_norm_layer(norm_cfg, planes, postfix=1)
+        self.norm2_name, norm2 = build_norm_layer(norm_cfg, planes, postfix=2)
+
+        self.conv1 = build_conv_layer(
+            conv_cfg,
+            inplanes,
+            planes,
+            3,
+            stride=stride,
+            padding=dilation,
+            dilation=dilation,
+            bias=False,
+        )
+        self.add_module(self.norm1_name, norm1)
+        self.conv2 = build_conv_layer(
+            conv_cfg, planes, planes, 3, padding=1, bias=False
+        )
+        self.add_module(self.norm2_name, norm2)
+
+        self.activation = build_activation_layer(act_cfg)
+        self.downsample = downsample
+        self.stride = stride
+        self.dilation = dilation
+        self.with_cp = with_cp
+
+    @property
+    def norm1(self):
+        """nn.Module: normalization layer after the first convolution layer"""
+        return getattr(self, self.norm1_name)
+
+    @property
+    def norm2(self):
+        """nn.Module: normalization layer after the second convolution layer"""
+        return getattr(self, self.norm2_name)
+
+    def manipulate_width(self, width):
+        self.width_state = width
+        # manipulate each layer
+        self.conv1.manipulate_width(width)
+        self.conv2.manipulate_width(width)
+        # manipulate downsample
+        if self.downsample is not None:
+            m = self.downsample[0]
+            if isinstance(m, DynamicMixin):
+                m.manipulate_width(width)
+            else:
+                raise TypeError(
+                    "The first module in downsample \
+                    should inherit from DynamicMixin."
+                )
+
+    def forward(self, x):
+        """Forward function."""
+
+        def _inner_forward(x):
+            identity = x
+
+            out = self.conv1(x)
+            out = self.norm1(out)
+            out = self.activation(out)
+
+            out = self.conv2(out)
+            out = self.norm2(out)
+
+            if self.downsample is not None:
+                identity = self.downsample(x)
+
+            out += identity
+
+            return out
+
+        if self.with_cp and x.requires_grad:
+            out = cp.checkpoint(_inner_forward, x)
+        else:
+            out = _inner_forward(x)
+
+        out = self.activation(out)
+
+        return out
 
 
 class DynamicBottleneck(nn.Module, DynamicMixin):
