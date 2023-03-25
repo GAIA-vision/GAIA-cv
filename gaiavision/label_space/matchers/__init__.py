@@ -1,1 +1,2 @@
-# add visual/language/manual_matcher here
+from .given_labels_matcher import GivenLabelsMatcher
+from .word2vec_matcher import Word2vecMatcher
